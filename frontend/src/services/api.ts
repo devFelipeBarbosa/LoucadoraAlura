@@ -75,6 +75,18 @@ export const api = {
     return response.json();
   },
 
+  async getCarsByLocation(locationId: number, options?: { categoryId?: number; search?: string }): Promise<Car[]> {
+    const params = new URLSearchParams({ locationId: String(locationId) });
+    if (options?.categoryId !== undefined) params.set('categoryId', String(options.categoryId));
+    if (options?.search) params.set('search', options.search);
+
+    const response = await fetch(`${API_BASE_URL}/car/by-location?${params.toString()}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch cars by location');
+    }
+    return response.json();
+  },
+
   async getLocations(): Promise<Location[]> {
     const response = await fetch(`${API_BASE_URL}/locations`);
     if (!response.ok) {

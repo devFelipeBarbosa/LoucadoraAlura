@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {
   getAllCars,
+  getCarsByLocation,
   getRandomCars,
   getCarById,
   createCar,
@@ -11,6 +12,9 @@ const {
 
 // GET /car - Listar todos os carros (com filtro opcional por categoria)
 router.get('/', getAllCars);
+
+// GET /car/by-location - Buscar carros por localização
+router.get('/by-location', getCarsByLocation);
 
 // GET /car/random - Buscar carros aleatórios
 router.get('/random', getRandomCars);

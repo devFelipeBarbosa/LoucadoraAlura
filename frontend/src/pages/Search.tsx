@@ -8,6 +8,8 @@ import { api } from '../services/api';
 export function Search() {
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get('q') || '';
+  const locationIdParam = searchParams.get('locationId');
+  const locationId = locationIdParam ? Number(locationIdParam) : null;
 
   const { cars, loading: carsLoading } = useCars();
   const { categories, loading: categoriesLoading } = useCategories();
@@ -18,6 +20,24 @@ export function Search() {
 
   useEffect(() => {
     const performSearch = async () => {
+      // Location-based search (priority over q)
+      if (locationId && !Number.isNaN(locationId) && locationId > 0) {
+        setIsSearching(true);
+        try {
+          const results = await api.getCarsByLocation(
+            locationId,
+            selectedCategory === 'all' ? undefined : { categoryId: selectedCategory }
+          );
+          setSearchResults(results);
+        } catch (error) {
+          console.error('Erro ao buscar carros por localização:', error);
+          setSearchResults([]);
+        } finally {
+          setIsSearching(false);
+        }
+        return;
+      }
+
       if (searchQuery) {
         setIsSearching(true);
         try {
@@ -35,10 +55,10 @@ export function Search() {
     };
     
     performSearch();
-  }, [searchQuery]);
+  }, [searchQuery, locationId, selectedCategory]);
 
   // Usar searchResults quando houver busca, senão usar todos os carros
-  const carsToFilter = searchQuery ? searchResults : cars;
+  const carsToFilter = searchQuery || (locationId && !Number.isNaN(locationId) && locationId > 0) ? searchResults : cars;
 
   // Filter and sort logic
   const filteredCars = useMemo(() => {
@@ -69,7 +89,11 @@ export function Search() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="font-heading text-heading-xl lg:text-heading-xxl text-neutral-black mb-2">
-            {searchQuery ? `Veículos disponíveis em "${searchQuery}"` : 'Todos os Veículos'}
+            {locationId && !Number.isNaN(locationId) && locationId > 0
+              ? 'Veículos disponíveis na unidade selecionada'
+              : searchQuery
+                ? `Veículos disponíveis em "${searchQuery}"`
+                : 'Todos os Veículos'}
           </h1>
           <p className="text-body-md text-neutral-text">
             {filteredCars.length} {filteredCars.length === 1 ? 'veículo disponível' : 'veículos disponíveis'}

@@ -45,15 +45,13 @@ export function SearchBox() {
 
       setSearchData(searchData);
 
-      // Build search query with location
-      const searchQuery = pickupLocationData?.name || pickupLocation.trim();
-
-      // Navigate to search page with query
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+      // Navigate to search page using locationId
+      const locationId = Number(pickupLocation);
+      navigate(`/search?locationId=${encodeURIComponent(String(locationId))}`);
     } catch (error) {
       console.error('Erro ao processar busca:', error);
-      // Fallback: navegar sem salvar dados
-      navigate(`/search?q=${encodeURIComponent(pickupLocation)}`);
+      // Fallback: navegar sem filtro (mantém o app utilizável)
+      navigate('/search');
     }
   };
 

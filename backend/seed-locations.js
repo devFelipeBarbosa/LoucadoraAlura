@@ -108,6 +108,22 @@ const seedLocations = async (shouldCloseDatabase = true) => {
     }
     
     console.log('Locais inseridos com sucesso!');
+
+    // Associar carros a locais (por enquanto: todos os carros em todos os locais)
+    console.log('Associando carros aos locais...');
+    await runQuery('DELETE FROM car_locations');
+    const cars = await allQuery('SELECT id FROM cars ORDER BY id');
+    const dbLocations = await allQuery('SELECT id FROM locations ORDER BY id');
+
+    for (const car of cars) {
+      for (const location of dbLocations) {
+        await runQuery(
+          'INSERT OR IGNORE INTO car_locations (carId, locationId) VALUES (?, ?)',
+          [car.id, location.id]
+        );
+      }
+    }
+    console.log('Associações car_locations criadas com sucesso!');
   } catch (error) {
     console.error('Erro ao inserir locais:', error);
   } finally {

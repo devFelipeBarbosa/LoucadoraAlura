@@ -41,6 +41,52 @@ const getAllCars = async (req, res) => {
   }
 };
 
+// GET /car/by-location?locationId=1 - Listar carros por localização
+const getCarsByLocation = async (req, res) => {
+  try {
+    const { locationId, categoryId, search } = req.query;
+
+    const locationIdNumber = Number(locationId);
+    if (!locationId || Number.isNaN(locationIdNumber) || locationIdNumber <= 0) {
+      return res.status(400).json({ error: 'locationId deve ser um número positivo' });
+    }
+
+    let sql = `
+      SELECT c.*
+      FROM cars c
+      INNER JOIN car_locations cl ON cl.carId = c.id
+      WHERE cl.locationId = ?
+    `;
+    const params = [locationIdNumber];
+
+    if (categoryId) {
+      sql += ' AND c.categoryId = ?';
+      params.push(categoryId);
+    }
+
+    if (search) {
+      sql += ' AND (c.title LIKE ? OR c.shortTitle LIKE ? OR c.description LIKE ?)';
+      const searchTerm = `%${search}%`;
+      params.push(searchTerm, searchTerm, searchTerm);
+    }
+
+    sql += ' ORDER BY c.id';
+
+    const cars = await allQuery(sql, params);
+
+    const parsedCars = cars.map((car) => ({
+      ...car,
+      specs: JSON.parse(car.specs),
+      features: JSON.parse(car.features),
+    }));
+
+    res.json(parsedCars);
+  } catch (error) {
+    console.error('Erro ao buscar carros por localização:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+};
+
 // GET /car/random - Buscar 6 carros aleatórios
 const getRandomCars = async (req, res) => {
   try {
@@ -232,6 +278,7 @@ const deleteCar = async (req, res) => {
 
 module.exports = {
   getAllCars,
+  getCarsByLocation,
   getRandomCars,
   getCarById,
   createCar,
