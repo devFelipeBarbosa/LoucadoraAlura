@@ -1,0 +1,34 @@
+---
+description: "Checklist obrigatório pós-implementação: confirmar que a Home do app continua funcionando após criar/alterar função."
+alwaysApply: true
+---
+
+## Regra: testar a Home depois de implementar função nova
+
+Sempre que você implementar uma **função nova** (ou alterar comportamento de uma função existente), é obrigatório validar que a **Home do app** continua funcionando normalmente.
+
+### O que fazer (obrigatório)
+
+- Suba o app (raiz do repo):
+
+```bash
+npm run dev
+```
+
+- Valide a Home no navegador:
+  - Abra a rota inicial do frontend (Home).
+  - Confirme que a página **renderiza sem tela em branco** e sem erros visíveis.
+  - Abra o DevTools e verifique:
+    - **Console**: sem erros (warnings ok, mas se forem novos/relacionados à mudança, trate).
+    - **Network**: chamadas essenciais não falham (sem 4xx/5xx inesperados).
+
+### Critérios de “passou”
+
+- A Home carrega e permanece navegável.
+- Nenhum erro novo no console relacionado à implementação.
+- Nenhuma falha de API necessária para a Home (quando aplicável).
+
+### Se falhar
+
+- Reproduza e corrija antes de considerar a implementação “pronta”.
+- Se a mudança for intencional e afetar a Home, ajuste a UI/rotas e **revalide** a Home até passar.
